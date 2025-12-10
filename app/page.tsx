@@ -11,6 +11,7 @@ export default function Home() {
   const [sentence, setSentence] = useState('');
   const [result, setResult] = useState<ValidationResponse | null>(null);
   const [todayLog, setTodayLog] = useState<TodayLogItem[]>([]);
+  const [selectedLog, setSelectedLog] = useState<TodayLogItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -155,6 +156,45 @@ export default function Home() {
         </div>
       )}
 
+      {/* Selected Log Modal */}
+      {selectedLog && (
+        <div className="alert-overlay animate-fade-in">
+          <div className="glass result-alert-card">
+            <div className="result-header-center">
+              <div className="score-ring" style={{ borderColor: getScoreColor(selectedLog.score) }}>
+                <span className="score-number" style={{ color: getScoreColor(selectedLog.score) }}>
+                  {selectedLog.score.toFixed(1)}
+                </span>
+              </div>
+              <h2 className="result-title">Log Details</h2>
+            </div>
+
+            <div className="result-body">
+              <div className="result-item">
+                <span className="label">Word</span>
+                <p className="value highlight">{selectedLog.word}</p>
+              </div>
+              <div className="result-item">
+                <span className="label">Your Sentence</span>
+                <p className="value">"{selectedLog.user_sentence}"</p>
+              </div>
+              <div className="result-item">
+                <span className="label">Feedback</span>
+                <p className="value">{getSuggestion(selectedLog)}</p>
+              </div>
+              <div className="result-item">
+                <span className="label">Time</span>
+                <p className="value">{new Date(selectedLog.datetime).toLocaleString()}</p>
+              </div>
+            </div>
+
+            <div className="result-actions-full">
+              <button onClick={() => setSelectedLog(null)} className="btn-gradient full-width">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="content-container">
         {loading ? (
           <div className="loading-state">
@@ -235,7 +275,11 @@ export default function Home() {
                     </thead>
                     <tbody>
                       {todayLog.slice(0, 10).map((log, i) => ( // Show last 10
-                        <tr key={i}>
+                        <tr
+                          key={i}
+                          onClick={() => setSelectedLog(log)}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <td className="col-time">{formatTime(log.datetime)}</td>
                           <td className="col-word">{log.word}</td>
                           <td className="col-sentence">"{log.user_sentence}"</td>
@@ -601,6 +645,11 @@ export default function Home() {
             color: var(--text-primary);
             font-size: 0.95rem;
             vertical-align: middle;
+        }
+
+        .activity-table tbody tr:hover {
+            background: #F8FAFC;
+            transition: background 0.2s;
         }
 
         .col-time { white-space: nowrap; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
