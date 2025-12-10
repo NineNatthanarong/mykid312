@@ -68,7 +68,10 @@ export default function Home() {
     try {
       const validation = await validateSentence(word.word, sentence);
       setResult(validation);
-      await refreshLog();
+      await Promise.all([
+        refreshLog(),
+        loadWord('fetch')
+      ]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Validation failed');
     } finally {
